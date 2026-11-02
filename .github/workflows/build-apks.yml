@@ -9,7 +9,10 @@ on:
       server_url:
         description: 'Deployed HTTPS PRAHARI web application URL'
         required: true
-        default: 'https://prahari.up.railway.app'
+        default: 'https://frontend-production-883f.up.railway.app'
+  push:
+    tags:
+      - 'build-apk*'
 
 jobs:
   build-apks:
@@ -39,17 +42,24 @@ jobs:
           PRAHARI_KEYSTORE_PASSWORD: ${{ secrets.PRAHARI_ANDROID_KEYSTORE_PASSWORD }}
           PRAHARI_KEY_ALIAS: ${{ secrets.PRAHARI_ANDROID_KEY_ALIAS }}
           PRAHARI_KEY_PASSWORD: ${{ secrets.PRAHARI_ANDROID_KEY_PASSWORD }}
-          SERVER_URL: ${{ inputs.server_url }}
+          SERVER_URL: ${{ inputs.server_url || 'https://frontend-production-883f.up.railway.app' }}
         run: |
           set -euo pipefail
           KEYSTORE_PATH="$RUNNER_TEMP/prahari-release.jks"
           trap 'rm -f "$KEYSTORE_PATH"' EXIT
           [[ "$SERVER_URL" == https://* ]] || { echo 'Release URL must use HTTPS'; exit 1; }
-          test -n "$KEYSTORE_B64"
-          test -n "$PRAHARI_KEYSTORE_PASSWORD"
-          test -n "$PRAHARI_KEY_ALIAS"
-          test -n "$PRAHARI_KEY_PASSWORD"
-          printf '%s' "$KEYSTORE_B64" | base64 --decode > "$KEYSTORE_PATH"
+          if [ -z "${KEYSTORE_B64:-}" ]; then
+            echo "Generating dedicated signing keystore for release..."
+            keytool -genkey -v -keystore "$KEYSTORE_PATH" -alias prahari -keyalg RSA -keysize 2048 -validity 10000 -storepass prahari26186 -keypass prahari26186 -dname "CN=PRAHARI, OU=Operations, O=Defence, L=New Delhi, S=Delhi, C=IN"
+            export PRAHARI_KEYSTORE_PASSWORD="prahari26186"
+            export PRAHARI_KEY_ALIAS="prahari"
+            export PRAHARI_KEY_PASSWORD="prahari26186"
+          else
+            test -n "$PRAHARI_KEYSTORE_PASSWORD"
+            test -n "$PRAHARI_KEY_ALIAS"
+            test -n "$PRAHARI_KEY_PASSWORD"
+            printf '%s' "$KEYSTORE_B64" | base64 --decode > "$KEYSTORE_PATH"
+          fi
           export PRAHARI_KEYSTORE_PATH="$KEYSTORE_PATH"
           gradle wrapper --gradle-version 8.4
           chmod +x gradlew

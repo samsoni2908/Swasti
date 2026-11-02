@@ -3,7 +3,7 @@ plugins {
 }
 
 def getCleanServerUrl(suffix) {
-    def raw = (project.findProperty("SERVER_URL") ?: System.getenv("SERVER_URL") ?: "https://prahari.up.railway.app").toString()
+    def raw = (project.findProperty("SERVER_URL") ?: System.getenv("SERVER_URL") ?: "https://frontend-production-883f.up.railway.app").toString()
     def clean = raw.replaceAll('[\"\'\\s]', '').trim()
     while (clean.endsWith('/')) {
         clean = clean.substring(0, clean.length() - 1)

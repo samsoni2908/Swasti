@@ -31,7 +31,7 @@ public class MainActivity extends AppCompatActivity {
     private TextView mErrorText;
 
     // Configured target server URL (change for production deployment)
-    private static final String DEFAULT_URL = "https://prahari.up.railway.app/login";
+    private static final String DEFAULT_URL = "https://frontend-production-883f.up.railway.app/login";
     private String mTargetUrl = DEFAULT_URL;
 
     @SuppressLint("SetJavaScriptEnabled")
@@ -53,8 +53,7 @@ public class MainActivity extends AppCompatActivity {
         mTargetUrl = mTargetUrl.replaceAll("[\"\'\\s]", "").trim();
         Uri target = Uri.parse(mTargetUrl);
         if (target.getHost() == null || (!"https".equalsIgnoreCase(target.getScheme())
-                && !(BuildConfig.DEBUG && "http".equalsIgnoreCase(target.getScheme())
-                && ("10.0.2.2".equals(target.getHost()) || "localhost".equals(target.getHost()))))) {
+                && !(BuildConfig.DEBUG && "http".equalsIgnoreCase(target.getScheme())))) {
             showError("Invalid application URL. Release builds require HTTPS.");
             return;
         }

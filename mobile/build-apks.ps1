@@ -2,7 +2,7 @@
 # Builds a debug-only unified wrapper for local evaluation. Release APKs use the signed CI workflow.
 
 param (
-    [string]$ServerUrl = "https://prahari.up.railway.app",
+    [string]$ServerUrl = "https://frontend-production-883f.up.railway.app",
     [string]$OutputDir = "./dist/apks"
 )
 
